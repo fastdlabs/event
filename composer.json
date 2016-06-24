@@ -1,0 +1,12 @@
+{
+    "name": "fastd/event",
+    "description": "FastD Event",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "janhuang",
+            "email": "bboyjanhuang@gmail.com"
+        }
+    ],
+    "require": {}
+}
