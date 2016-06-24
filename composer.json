@@ -8,5 +8,10 @@
             "email": "bboyjanhuang@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
 }
