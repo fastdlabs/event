@@ -17,8 +17,13 @@ class Event
 
     }
 
+    public function off($name)
+    {
+
+    }
+
     public function trigger($name)
     {
-        
+
     }
 }
