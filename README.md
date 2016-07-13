@@ -17,6 +17,18 @@ $event->on('test.name', function () {
 $event->trigger('test.name'); // name
 ```
 
+### 带参数
+
+```php
+$event = new Event();
+
+$event->on('test.args', function ($name) {
+    return $name;
+});
+
+$event->trigger('test.args', ['jan']); // jan
+```
+
 ## todo
 
 * 事件循环(Event Loop, Swoole)

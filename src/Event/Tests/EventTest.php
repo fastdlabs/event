@@ -29,6 +29,17 @@ class EventTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['name' => 'jan'], $event->trigger('test.array'));
     }
 
+    public function testArgs()
+    {
+        $event = new Event();
+
+        $event->on('test.args', function ($name) {
+            return $name;
+        });
+
+        $this->assertEquals('jan', $event->trigger('test.args', ['jan']));
+    }
+
     public function arrayReturn()
     {
         return ['name' => 'jan'];
