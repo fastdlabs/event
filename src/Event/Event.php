@@ -10,20 +10,54 @@
 
 namespace FastD\Event;
 
-class Event
+/**
+ * Class Event
+ *
+ * @package FastD\Event
+ */
+class Event 
 {
+    /**
+     * @var array
+     */
+    protected $events = [];
+
+    /**
+     * @param $name
+     * @param $callback
+     * @return $this
+     */
     public function on($name, $callback)
     {
+        $this->events[$name] = $callback;
 
+        return $this;
     }
 
+    /**
+     * @param $name
+     * @return $this
+     */
     public function off($name)
     {
+        if (isset($this->events[$name])) {
+            unset($this->events[$name]);
+        }
 
+        return $this;
     }
 
-    public function trigger($name)
+    /**
+     * @param $name
+     * @param array $args
+     * @return mixed
+     */
+    public function trigger($name, array $args = [])
     {
+        if (!isset($this->events[$name])) {
+            throw new \InvalidArgumentException(sprintf('Event "%s" is undefined.', $name));
+        }
 
+        return call_user_func_array($this->events[$name], $args);
     }
 }
