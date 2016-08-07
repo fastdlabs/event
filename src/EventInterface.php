@@ -26,7 +26,7 @@ interface EventInterface
      * @param $weight
      * @return $this
      */
-    public function on($name, $callable, $weight = EventInterface::EVENT_LOW);
+    public function on($name, $callable, $weight = null);
 
     /**
      * @param $name

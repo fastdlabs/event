@@ -10,17 +10,7 @@
 
 namespace FastD\Event;
 
-/**
- * Class Event
- *
- * @package FastD\Event
- */
-class EventDispatcher
+class EventException
 {
-    protected $events = [];
 
-    public function addEvent(EventInterface $event)
-    {
-        $this->events[] = $event;
-    }
 }
