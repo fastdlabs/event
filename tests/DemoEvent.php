@@ -1,4 +1,5 @@
 <?php
+use FastD\Event\Event;
 
 /**
  *
@@ -8,7 +9,10 @@
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class Demo
+class DemoEvent extends Event
 {
-
+    public function demoAction()
+    {
+        return __METHOD__;
+    }
 }

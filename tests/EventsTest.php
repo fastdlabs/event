@@ -8,23 +8,23 @@
  * @link      http://www.fast-d.cn/
  */
 
-use FastD\Event\Events;
+use FastD\Event\Event;
 
 class EventsTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        include_once __DIR__ . '/Demo.php';
+        include_once __DIR__ . '/DemoEvent.php';
     }
 
     public function testOn()
     {
-        $event = new Events();
+        $event = new Event();
 
         $event->on('test.name', function () {
             return 'name';
         });
-        
+
         $this->assertEquals('name', $event->trigger('test.name'));
 
         $event->on('test.array', [$this, 'arrayReturn']);
@@ -34,7 +34,7 @@ class EventsTest extends \PHPUnit_Framework_TestCase
 
     public function testArgs()
     {
-        $event = new Events();
+        $event = new Event();
 
         $event->on('test.args', function ($name) {
             return $name;
@@ -50,10 +50,14 @@ class EventsTest extends \PHPUnit_Framework_TestCase
 
     public function testEventCallable()
     {
-        $events = new Events();
+        $demoEvent = new DemoEvent();
 
-        $events->on('test', function () {
-            return 'test';
+        $demoEvent->on('demoAction', function ($method) {
+            return $method;
         });
+
+        $result = $demoEvent->trigger('demoAction');
+
+        print_r($result);
     }
 }

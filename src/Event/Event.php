@@ -9,6 +9,7 @@
  */
 
 namespace FastD\Event;
+
 use InvalidArgumentException;
 
 /**
@@ -16,7 +17,7 @@ use InvalidArgumentException;
  *
  * @package FastD\Event
  */
-class Events
+class Event implements EventInterface
 {
     /**
      * @var array
@@ -25,12 +26,13 @@ class Events
 
     /**
      * @param $name
-     * @param $callback
+     * @param $callable
+     * @param $weight
      * @return $this
      */
-    public function on($name, $callback)
+    public function on($name, $callable, $weight = EventInterface::EVENT_LOW)
     {
-        $this->events[$name] = $callback;
+        $this->events[$name] = $callable;
 
         return $this;
     }
@@ -50,15 +52,27 @@ class Events
 
     /**
      * @param $name
-     * @param array $args
+     * @param array|null $params
      * @return mixed
      */
-    public function trigger($name, array $args = [])
+    public function trigger($name, array $params = [])
     {
         if (!isset($this->events[$name])) {
             throw new InvalidArgumentException(sprintf('Event "%s" is undefined.', $name));
         }
 
-        return call_user_func_array($this->events[$name], $args);
+        if (method_exists($this, $name)) {
+            $previous = call_user_func_array([$this, $name], $params);
+            if (!is_array($previous)) {
+                $previous = [$previous];
+            }
+            foreach ($previous as $previou) {
+                array_unshift($params, $previou);
+            }
+        }
+
+        $eventReturn = call_user_func_array($this->events[$name], $params);
+
+        return $eventReturn;
     }
 }
