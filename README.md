@@ -1,9 +1,10 @@
 # Event
-FastD Event.
+
+事件与调度(暂时没有太多头绪).
 
 ## ＃环境要求
 
-* PHP 7+
+* PHP >= 5.6
 
 ## Usage
 
@@ -28,10 +29,5 @@ $event->on('test.args', function ($name) {
 
 $event->trigger('test.args', ['jan']); // jan
 ```
-
-## todo
-
-* 事件循环(Event Loop, Swoole)
-* 异步 (Swoole)
 
 # License MIT
