@@ -34,7 +34,7 @@ class Event implements EventInterface
      * @param $callable
      * @param $when
      * @param $bindTo
-     * @return $this 
+     * @return $this
      */
     public function on($name, $callable, $when = EventInterface::EVENT_BEFORE, $bindTo = null)
     {
@@ -100,7 +100,7 @@ class Event implements EventInterface
             }
             throw new EventUndefinedException($name);
         }
-
+        
         return call_user_func_array($this->events[$name], $params);
     }
 }
