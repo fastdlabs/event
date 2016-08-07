@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  * @author    jan huang <bboyjanhuang@gmail.com>
@@ -8,8 +7,41 @@
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class DefinitionTest extends PHPUnit_Framework_TestCase
+
+use FastD\Event\Event;
+
+class EventTest extends \PHPUnit_Framework_TestCase
 {
+    public function arrayReturn()
+    {
+        return ['name' => 'jan'];
+    }
+
+    public function testOn()
+    {
+        $event = new Event();
+
+        $event->on('test.name', function () {
+            return 'name';
+        });
+
+        $this->assertEquals('name', $event->trigger('test.name'));
+
+        $event->on('test.array', [$this, 'arrayReturn']);
+
+        $this->assertEquals(['name' => 'jan'], $event->trigger('test.array'));
+    }
+
+    public function testArgs()
+    {
+        $event = new Event();
+
+        $event->on('test.args', function ($name) {
+            return $name;
+        });
+
+        $this->assertEquals('jan', $event->trigger('test.args', ['jan']));
+    }
 
     public function setUp()
     {
@@ -19,6 +51,7 @@ class DefinitionTest extends PHPUnit_Framework_TestCase
         include_once __DIR__ . '/events/ObjectEvent.php';
         include_once __DIR__ . '/events/objects/Order.php';
         include_once __DIR__ . '/events/HandleEvent.php';
+        include_once __DIR__ . '/events/BindToEvent.php';
     }
 
     public function testStringEventCallable()
@@ -79,5 +112,18 @@ class DefinitionTest extends PHPUnit_Framework_TestCase
         $result = $handleEvent->trigger('success');
 
         $this->assertEquals($result, 'event handle on success');
+    }
+
+    public function testEventBindTo()
+    {
+        $bindToEvent = new BindToEvent();
+
+        $bindToEvent->on('test', function () {
+            return 'test event';
+        }, Event::EVENT_BEFORE, [new Order(), 'bindToReturn']);
+
+        $result = $bindToEvent->trigger('test');
+
+        print_r($result);
     }
 }

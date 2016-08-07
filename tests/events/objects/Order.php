@@ -23,4 +23,9 @@ class Order
     {
         return $this->price;
     }
+
+    public function bindToReturn($event)
+    {
+
+    }
 }

@@ -34,7 +34,7 @@ class Event implements EventInterface
      * @param $callable
      * @param $when
      * @param $bindTo
-     * @return $this
+     * @return $this 
      */
     public function on($name, $callable, $when = EventInterface::EVENT_BEFORE, $bindTo = null)
     {
