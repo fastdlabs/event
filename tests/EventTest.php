@@ -8,8 +8,6 @@
  * @link      http://www.fast-d.cn/
  */
 
-namespace FastD\Event\Tests;
-
 use FastD\Event\Event;
 
 class EventTest extends \PHPUnit_Framework_TestCase

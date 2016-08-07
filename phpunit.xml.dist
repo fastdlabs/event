@@ -12,7 +12,7 @@
     </php>
     <testsuites>
         <testsuite name="FastD Event Testing">
-            <directory>./src/Event/Tests/</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>
