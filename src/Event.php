@@ -25,14 +25,40 @@ class Event implements EventInterface
     protected $events = [];
 
     /**
+     * @var array
+     */
+    protected $bindTos = [];
+
+    /**
      * @param $name
      * @param $callable
      * @param $when
+     * @param $bindTo
      * @return $this
      */
-    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE)
+    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE, $bindTo = null)
     {
         $this->events[$name] = $callable;
+
+        if (null !== $bindTo) {
+            $this->bindTo($bindTo, $name);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $from
+     * @param $event
+     * @return $this
+     */
+    public function bindTo($from, $event)
+    {
+        if (is_array($from)) {
+            $from = get_class($from[0]) . '::' . $from[1];
+        }
+
+        $this->bindTos[$from][] = $event;
 
         return $this;
     }

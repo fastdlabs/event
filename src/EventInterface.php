@@ -24,9 +24,10 @@ interface EventInterface
      * @param $name
      * @param $callable
      * @param $when
+     * @param $bindTo
      * @return $this
      */
-    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE);
+    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE, $bindTo = null);
 
     /**
      * @param $name

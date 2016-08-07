@@ -52,7 +52,7 @@ class DefinitionTest extends PHPUnit_Framework_TestCase
         ], $result);
     }
 
-    public function testArgEventCallable()
+    public function testArgsEventCallable()
     {
         $argsEvent = new ArgsEvent();
 
