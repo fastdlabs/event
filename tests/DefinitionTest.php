@@ -25,9 +25,7 @@ class DefinitionTest extends PHPUnit_Framework_TestCase
     {
         $stringEvent = new StringEvent();
 
-        $stringEvent->on('demoAction', function ($method) {
-            return $method;
-        });
+        $stringEvent->on('demoAction', [$stringEvent, 'demoAction']);
 
         $result = $stringEvent->trigger('demoAction');
 
@@ -38,9 +36,7 @@ class DefinitionTest extends PHPUnit_Framework_TestCase
     {
         $arrayEvent = new ArrayEvent();
 
-        $arrayEvent->on('arrayAction', function ($user) {
-            return $user;
-        });
+        $arrayEvent->on('arrayAction', [$arrayEvent, 'arrayAction']);
 
         $result = $arrayEvent->trigger('arrayAction');
 
@@ -56,22 +52,18 @@ class DefinitionTest extends PHPUnit_Framework_TestCase
     {
         $argsEvent = new ArgsEvent();
 
-        $argsEvent->on('argsAction', function ($num) {
-            return $num * 2;
-        });
+        $argsEvent->on('argsAction', [$argsEvent, 'argsAction']);
 
         $result = $argsEvent->trigger('argsAction', [10, 20]);
 
-        $this->assertEquals(60, $result);
+        $this->assertEquals(30, $result);
     }
 
     public function testObjectEventCallable()
     {
         $objectEvent = new ObjectEvent();
 
-        $objectEvent->on('orderAction', function (Order $order) {
-            return $order;
-        });
+        $objectEvent->on('orderAction', [$objectEvent, 'orderAction']);
 
         $result = $objectEvent->trigger('orderAction', [new Order]);
 

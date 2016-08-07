@@ -101,11 +101,6 @@ class Event implements EventInterface
             throw new EventUndefinedException($name);
         }
 
-        if (method_exists($this, $name)) {
-            $result = call_user_func_array([$this, $name], $params);
-            array_unshift($params, $result);
-        }
-
         return call_user_func_array($this->events[$name], $params);
     }
 }
