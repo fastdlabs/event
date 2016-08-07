@@ -9,13 +9,14 @@
  */
 
 namespace FastD\Event;
+use InvalidArgumentException;
 
 /**
  * Class Event
  *
  * @package FastD\Event
  */
-class Event 
+class Events
 {
     /**
      * @var array
@@ -55,7 +56,7 @@ class Event
     public function trigger($name, array $args = [])
     {
         if (!isset($this->events[$name])) {
-            throw new \InvalidArgumentException(sprintf('Event "%s" is undefined.', $name));
+            throw new InvalidArgumentException(sprintf('Event "%s" is undefined.', $name));
         }
 
         return call_user_func_array($this->events[$name], $args);

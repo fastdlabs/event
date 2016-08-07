@@ -8,13 +8,18 @@
  * @link      http://www.fast-d.cn/
  */
 
-use FastD\Event\Event;
+use FastD\Event\Events;
 
-class EventTest extends \PHPUnit_Framework_TestCase
+class EventsTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        include_once __DIR__ . '/Demo.php';
+    }
+
     public function testOn()
     {
-        $event = new Event();
+        $event = new Events();
 
         $event->on('test.name', function () {
             return 'name';
@@ -29,7 +34,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
 
     public function testArgs()
     {
-        $event = new Event();
+        $event = new Events();
 
         $event->on('test.args', function ($name) {
             return $name;
@@ -41,5 +46,14 @@ class EventTest extends \PHPUnit_Framework_TestCase
     public function arrayReturn()
     {
         return ['name' => 'jan'];
+    }
+
+    public function testEventCallable()
+    {
+        $events = new Events();
+
+        $events->on('test', function () {
+            return 'test';
+        });
     }
 }
