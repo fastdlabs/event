@@ -62,17 +62,10 @@ class Event implements EventInterface
         }
 
         if (method_exists($this, $name)) {
-            $previous = call_user_func_array([$this, $name], $params);
-            if (!is_array($previous)) {
-                $previous = [$previous];
-            }
-            foreach ($previous as $previou) {
-                array_unshift($params, $previou);
-            }
+            $result = call_user_func_array([$this, $name], $params);
+            array_unshift($params, $result);
         }
 
-        $eventReturn = call_user_func_array($this->events[$name], $params);
-
-        return $eventReturn;
+        return call_user_func_array($this->events[$name], $params);
     }
 }

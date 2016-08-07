@@ -9,10 +9,10 @@ use FastD\Event\Event;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class DemoEvent extends Event
+class ArgsEvent extends Event
 {
-    public function demoAction()
+    public function argsAction($num, $step = 2)
     {
-        return __METHOD__;
+        return $num + $step;
     }
 }
