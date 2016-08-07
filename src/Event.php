@@ -10,7 +10,7 @@
 
 namespace FastD\Event;
 
-use InvalidArgumentException;
+use FastD\Event\Exceptions\EventUndefinedException;
 
 /**
  * Class Event
@@ -27,10 +27,10 @@ class Event implements EventInterface
     /**
      * @param $name
      * @param $callable
-     * @param $weight
+     * @param $when
      * @return $this
      */
-    public function on($name, $callable, $weight = null)
+    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE)
     {
         $this->events[$name] = $callable;
 
@@ -52,13 +52,27 @@ class Event implements EventInterface
 
     /**
      * @param $name
-     * @param array|null $params
+     * @return string
+     */
+    protected function getEventHandleName($name)
+    {
+        return 'on' . ucfirst($name);
+    }
+
+    /**
+     * @param $name
+     * @param array $params
      * @return mixed
+     * @throws EventUndefinedException
      */
     public function trigger($name, array $params = [])
     {
         if (!isset($this->events[$name])) {
-            throw new InvalidArgumentException(sprintf('Event "%s" is undefined.', $name));
+            $handle = $this->getEventHandleName($name);
+            if (method_exists($this, $handle)) {
+                return call_user_func_array([$this, $handle], $params);
+            }
+            throw new EventUndefinedException($name);
         }
 
         if (method_exists($this, $name)) {

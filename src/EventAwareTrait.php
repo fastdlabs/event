@@ -15,7 +15,7 @@ namespace FastD\Event;
  *
  * @package FastD\Event
  */
-trait EventAware
+trait EventAwareTrait
 {
     /**
      * @var EventDispatcher $eventDispatcher

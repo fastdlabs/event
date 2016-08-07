@@ -17,16 +17,16 @@ namespace FastD\Event;
  */
 interface EventInterface
 {
-    const EVENT_HEIGHT = 100;
-    const EVENT_LOW = 10;
+    const EVENT_BEFORE = 100;
+    const EVENT_AFTER  = 0;
 
     /**
      * @param $name
      * @param $callable
-     * @param $weight
+     * @param $when
      * @return $this
      */
-    public function on($name, $callable, $weight = null);
+    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE);
 
     /**
      * @param $name
@@ -36,7 +36,7 @@ interface EventInterface
 
     /**
      * @param $name
-     * @param array|null $params
+     * @param array $params
      * @return mixed
      */
     public function trigger($name, array $params = []);

@@ -21,8 +21,8 @@ class EventDispatcher
         return $this;
     }
 
-    public function trigger($name)
+    public function trigger($name, $event, array $params = [])
     {
-
+        return $this->events[$name]->trigger($event, $params);
     }
 }
