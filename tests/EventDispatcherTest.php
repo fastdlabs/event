@@ -15,25 +15,69 @@ class EventDispatcherTest extends PHPUnit_Framework_TestCase
     {
         include_once __DIR__ . '/objects/Subject.php';
         include_once __DIR__ . '/events/ArrayEvent.php';
-        include_once __DIR__ . '/events/HandleEvent.php';
     }
 
     public function testEventDispatcher()
     {
         $arrayEvent = new ArrayEvent();
 
-        $arrayEvent->on('test', function () {
-            return 'array event: test';
+        $eventDispatcher = new EventDispatcher();
+
+        $eventDispatcher->on('array', $arrayEvent);
+
+        $this->assertEquals([
+            'user' => [
+                'name' => 'jan',
+                'age' => 19
+            ]
+        ], $eventDispatcher->trigger('array.array'));
+    }
+
+    public function testEventOn()
+    {
+        $eventDispatcher = new EventDispatcher();
+
+        $eventDispatcher->on('test', function () {
+            return 'test';
         });
 
-        $dispatcher = new EventDispatcher();
+        $this->assertEquals('test', $eventDispatcher->trigger('test'));
+    }
 
-        $dispatcher->add($arrayEvent);
+    /**
+     * @expectedException \FastD\Event\Exceptions\EventUndefinedException
+     */
+    public function testEventOff()
+    {
+        $eventDispatcher = new EventDispatcher();
 
-        $subject = new Subject();
+        $eventDispatcher->on('test', function () {
+            return 'test';
+        });
 
-        $subject->setEventDispatcher($dispatcher);
+        $eventDispatcher->off('test');
 
-//        $subject->update();
+        $this->assertEquals('test', $eventDispatcher->trigger('test'));
+    }
+
+    /**
+     * @expectedException \FastD\Event\Exceptions\EventUndefinedException
+     */
+    public function testEventOffEventObject()
+    {
+        $arrayEvent = new ArrayEvent();
+
+        $eventDispatcher = new EventDispatcher();
+
+        $eventDispatcher->on('array', $arrayEvent);
+
+        $eventDispatcher->off('array');
+
+        $this->assertEquals([
+            'user' => [
+                'name' => 'jan',
+                'age' => 19
+            ]
+        ], $eventDispatcher->trigger('array.array'));
     }
 }

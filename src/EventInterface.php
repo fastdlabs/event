@@ -17,23 +17,5 @@ namespace FastD\Event;
  */
 interface EventInterface
 {
-    /**
-     * @param $name
-     * @param $callable
-     * @return $this
-     */
-    public function on($name, $callable);
 
-    /**
-     * @param $name
-     * @return $this
-     */
-    public function off($name);
-
-    /**
-     * @param $name
-     * @param array $params
-     * @return mixed
-     */
-    public function trigger($name, array $params = []);
 }

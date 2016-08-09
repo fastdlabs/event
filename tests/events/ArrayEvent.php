@@ -1,5 +1,6 @@
 <?php
 use FastD\Event\Event;
+use FastD\Event\EventInterface;
 
 /**
  *
@@ -9,9 +10,9 @@ use FastD\Event\Event;
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class ArrayEvent extends Event
+class ArrayEvent implements EventInterface
 {
-    public function arrayAction()
+    public function onArray()
     {
         return [
             'user' => [
