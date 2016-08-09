@@ -25,11 +25,13 @@ class EventTest extends \PHPUnit_Framework_TestCase
             return 'name';
         });
 
-        $this->assertEquals('name', $event->trigger('test.name'));
+        $this->assertEquals([Event::TRIGGER_BEFORE => 'name'], $event->trigger('test.name'));
 
         $event->on('test.array', [$this, 'arrayReturn']);
 
-        $this->assertEquals(['name' => 'jan'], $event->trigger('test.array'));
+        $this->assertEquals([
+            Event::TRIGGER_BEFORE => ['name' => 'jan']
+        ], $event->trigger('test.array'));
     }
 
     public function testArgs()
@@ -40,7 +42,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
             return $name;
         });
 
-        $this->assertEquals('jan', $event->trigger('test.args', ['jan']));
+        $this->assertEquals([Event::TRIGGER_BEFORE => 'jan'], $event->trigger('test.args', ['jan']));
     }
 
     public function setUp()
@@ -62,7 +64,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
 
         $result = $stringEvent->trigger('demoAction');
 
-        $this->assertEquals('StringEvent::demoAction', $result);
+        $this->assertEquals([Event::TRIGGER_BEFORE => 'StringEvent::demoAction'], $result);
     }
 
     public function testArrayEventCallable()
@@ -74,11 +76,12 @@ class EventTest extends \PHPUnit_Framework_TestCase
         $result = $arrayEvent->trigger('arrayAction');
 
         $this->assertEquals([
+            Event::TRIGGER_BEFORE => [
             'user' => [
                 'name' => 'jan',
                 'age' => 19
             ]
-        ], $result);
+        ]], $result);
     }
 
     public function testArgsEventCallable()
@@ -89,7 +92,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
 
         $result = $argsEvent->trigger('argsAction', [10, 20]);
 
-        $this->assertEquals(30, $result);
+        $this->assertEquals([Event::TRIGGER_BEFORE => 30], $result);
     }
 
     public function testObjectEventCallable()
@@ -100,9 +103,9 @@ class EventTest extends \PHPUnit_Framework_TestCase
 
         $result = $objectEvent->trigger('orderAction', [new Order]);
 
-        $this->assertEquals(33.6, $result->getPrice());
+        $this->assertEquals(33.6, $result[Event::TRIGGER_BEFORE]->getPrice());
 
-        $this->assertInstanceOf(Order::class, $result);
+        $this->assertInstanceOf(Order::class, $result[Event::TRIGGER_BEFORE]);
     }
 
     public function testEventOnHandle()
@@ -120,7 +123,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
 
         $bindToEvent->on('test', function () {
             return 'test event';
-        }, Event::EVENT_BEFORE, [new Order(), 'bindToReturn']);
+        }, Event::TRIGGER_BEFORE, [new Order(), 'bindToReturn']);
 
         $result = $bindToEvent->trigger('test');
 

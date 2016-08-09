@@ -36,9 +36,9 @@ class Event implements EventInterface
      * @param $bindTo
      * @return $this
      */
-    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE, $bindTo = null)
+    public function on($name, $callable, $when = EventInterface::TRIGGER_BEFORE, $bindTo = null)
     {
-        $this->events[$name] = $callable;
+        $this->events[$name][$when] = $callable;
 
         if (null !== $bindTo) {
             $this->bindTo($bindTo, $name);
@@ -100,7 +100,10 @@ class Event implements EventInterface
             }
             throw new EventUndefinedException($name);
         }
-        
-        return call_user_func_array($this->events[$name], $params);
+        $eventReturn = [];
+        foreach ($this->events[$name] as $weight => $event) {
+            $eventReturn[$weight] = call_user_func_array($event, $params);
+        }
+        return $eventReturn;
     }
 }

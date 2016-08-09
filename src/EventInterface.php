@@ -17,8 +17,8 @@ namespace FastD\Event;
  */
 interface EventInterface
 {
-    const EVENT_BEFORE = 100;
-    const EVENT_AFTER  = 0;
+    const TRIGGER_BEFORE = 'before';
+    const TRIGGER_AFTER  = 'after';
 
     /**
      * @param $name
@@ -27,7 +27,7 @@ interface EventInterface
      * @param $bindTo
      * @return $this
      */
-    public function on($name, $callable, $when = EventInterface::EVENT_BEFORE, $bindTo = null);
+    public function on($name, $callable, $when = EventInterface::TRIGGER_BEFORE, $bindTo = null);
 
     /**
      * @param $name
