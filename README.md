@@ -1,33 +1,43 @@
 # Event
 
-事件与调度(暂时没有太多头绪).
+Simple Event and EventManager
 
-## ＃环境要求
+### Requirements
 
 * PHP >= 5.6
 
-## Usage
+### Installation
+
+`composer require "fastd/event:1.0.x-dev" -vvv`
+
+### Usage Event
 
 ```php
-$event = new Event();
-
-$event->on('test.name', function () {
-    return 'name';
+$event = new \FastD\Event\Event('demo', function () {
+    return 'demo event';
 });
 
-$event->trigger('test.name'); // name
+$result = $event->broadcast();
+
+$this->assertEquals(['demo event'], $result);
 ```
 
-### 带参数
+### Usage EventDispatch
 
 ```php
-$event = new Event();
+$eventDispatch = new \FastD\Event\EventDispatcher();
 
-$event->on('test.args', function ($name) {
-    return $name;
-});
+$eventDispatch->on('demo', new DemoListener());
 
-$event->trigger('test.args', ['jan']); // jan
+echo $eventDispatch->trigger('demo');
+
+$this->expectOutputString('handle ok');
+```
+
+### PHPUnit
+
+```
+phpunit
 ```
 
 # License MIT
