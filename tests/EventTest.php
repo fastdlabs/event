@@ -7,7 +7,7 @@
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class EventDispatcherTest extends PHPUnit_Framework_TestCase
+class EventTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -15,14 +15,13 @@ class EventDispatcherTest extends PHPUnit_Framework_TestCase
         include_once __DIR__ . '/demo/DemoEvent.php';
     }
 
-    public function testDispatch()
+    public function testEvent()
     {
-        $eventDispatch = new \FastD\Event\EventDispatcher();
-
-        $eventDispatch->on('demo', new DemoListener());
-
-        echo $eventDispatch->trigger('demo');
-
+        $event = new DemoEvent('demo', function () {
+            return 'demo event';
+        });
+        $event->attach(new DemoListener());
+        $event->broadcast();
         $this->expectOutputString('handle ok');
     }
 }

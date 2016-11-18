@@ -1,6 +1,5 @@
 <?php
 /**
- *
  * @author    jan huang <bboyjanhuang@gmail.com>
  * @copyright 2016
  *
@@ -10,30 +9,23 @@
 
 namespace FastD\Event;
 
-use FastD\Event\Exceptions\EventUndefinedException;
-
 /**
  * Class EventDispatcher
  *
  * @package FastD\Event
  */
-class EventDispatcher
+class EventDispatcher extends EventManager
 {
-    const DOT = '.';
-
-    /**
-     * @var array
-     */
-    protected $events = [];
-
     /**
      * @param $name
-     * @param $callable
+     * @param $callback
      * @return $this
      */
-    public function on($name, $callable)
+    public function on($name, $callback)
     {
-        $this->events[$name] = $callable;
+        parent::attach($name, $callback);
+
+        $this->events[$name]->attach($callback);
 
         return $this;
     }
@@ -44,35 +36,18 @@ class EventDispatcher
      */
     public function off($name)
     {
-        if (isset($this->events[$name])) {
-            unset($this->events[$name]);
-        }
+        parent::detach($name);
 
         return $this;
     }
 
     /**
      * @param $name
-     * @param array $params
+     * @param array $arguments
      * @return mixed
-     * @throws EventUndefinedException
      */
-    public function trigger($name, array $params = [])
+    public function dispatch($name, array $arguments = [])
     {
-        if (!isset($this->events[$name])) {
-            if (false === strpos($name, static::DOT)) {
-                throw new EventUndefinedException($name);
-            }
-            list($name, $handle) = explode(static::DOT, $name);
-            if (!isset($this->events[$name])) {
-                throw new EventUndefinedException($name);
-            }
-            $obj = $this->events[$name];
-            $handle = 'on' . ucfirst($handle);
-            if (method_exists($obj, $handle)) {
-                return call_user_func_array([$obj, $handle], $params);
-            }
-        }
-        return call_user_func_array($this->events[$name], $params);
+        return parent::trigger($name, null, $arguments);
     }
 }
