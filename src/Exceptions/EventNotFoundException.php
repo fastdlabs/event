@@ -10,14 +10,12 @@
 
 namespace FastD\Event\Exceptions;
 
-use Exception;
-
 /**
- * Class EventUndefinedException
+ * Class EventNotFoundException
  *
- * @package FastD\Event
+ * @package FastD\Event\Exceptions
  */
-class EventUndefinedException extends Exception
+class EventNotFoundException extends EventException
 {
     /**
      * EventUndefinedException constructor.
@@ -26,6 +24,6 @@ class EventUndefinedException extends Exception
      */
     public function __construct($eventName)
     {
-        parent::__construct(sprintf('Event "%s" is undefined.', $eventName));
+        parent::__construct(sprintf('Event "%s" is not found.', $eventName));
     }
 }

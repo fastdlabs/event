@@ -14,7 +14,7 @@ namespace FastD\Event;
  *
  * @package FastD\Event
  */
-class Event implements EventSubjectInterface, EventInterface
+class Event implements EventInterface, EventBroadcastInterface
 {
     /**
      * @var string
@@ -22,9 +22,9 @@ class Event implements EventSubjectInterface, EventInterface
     protected $name;
 
     /**
-     * @var array|string|callable|object
+     * @var array[]
      */
-    protected $target;
+    protected $listeners = [];
 
     /**
      * @var array
@@ -34,24 +34,19 @@ class Event implements EventSubjectInterface, EventInterface
     /**
      * @var bool
      */
-    protected $propagation;
-
-    /**
-     * @var EventListenerInterface[]
-     */
-    protected $listeners = [];
+    protected $propagation = false;
 
     /**
      * Event constructor.
      *
      * @param $name
-     * @param $target
+     * @param $listener
      * @param array $arguments
      */
-    public function __construct($name, $target, array $arguments = [])
+    public function __construct($name, $listener, array $arguments = [])
     {
         $this->setName($name);
-        $this->setTarget($target);
+        $this->setListener($listener);
         $this->setParams($arguments);
     }
 
@@ -70,9 +65,22 @@ class Event implements EventSubjectInterface, EventInterface
      *
      * @return null|string|object
      */
-    public function getTarget()
+    public function getListeners()
     {
-        return $this->target;
+        return $this->listeners;
+    }
+
+    /**
+     * Set the event target
+     *
+     * @param  null|string|object $listener
+     * @return EventInterface
+     */
+    public function setListener($listener)
+    {
+        $this->listeners[] = $listener;
+
+        return $this;
     }
 
     /**
@@ -100,43 +108,39 @@ class Event implements EventSubjectInterface, EventInterface
      * Set the event name
      *
      * @param  string $name
-     * @return void
+     * @return $this
      */
     public function setName($name)
     {
         $this->name = $name;
-    }
 
-    /**
-     * Set the event target
-     *
-     * @param  null|string|object $target
-     * @return void
-     */
-    public function setTarget($target)
-    {
-        $this->target = $target;
+        return $this;
     }
 
     /**
      * Set event parameters
      *
      * @param  array $params
-     * @return void
+     * @return $this
      */
     public function setParams(array $params)
     {
         $this->params = $params;
+
+        return $this;
     }
 
     /**
      * Indicate whether or not to stop propagating this event
      *
      * @param  bool $flag
+     * @return $this
      */
     public function stopPropagation($flag)
     {
         $this->propagation = $flag;
+
+        return $this;
     }
 
     /**
@@ -150,34 +154,45 @@ class Event implements EventSubjectInterface, EventInterface
     }
 
     /**
-     * @param EventListenerInterface $eventListener
+     * @return bool
      */
-    public function attach(EventListenerInterface $eventListener)
+    public function cleanListeners()
     {
-        $this->listeners[spl_object_hash($eventListener)] = $eventListener;
+        $this->listeners = [];
+
+        return true;
     }
 
     /**
-     * @param EventListenerInterface $eventListener
+     * @param $index
+     * @return bool
      */
-    public function detach(EventListenerInterface $eventListener)
+    public function detachListener($index)
     {
-        $hash = spl_object_hash($eventListener);
-
-        if (isset($this->listeners[$hash])) {
-            unset($this->listeners[$hash]);
+        if ($this->listeners[$index]) {
+            unset($this->listeners[$index]);
         }
+
+        return true;
     }
 
     /**
-     * @param array $arguments
      * @return array
      */
-    public function broadcast(array $arguments = [])
+    public function broadcast()
     {
         $result = [];
         foreach ($this->listeners as $listener) {
-            $result[] = call_user_func_array([$listener, 'handle'], [$this, $arguments]);
+            if (!$this->isPropagationStopped()) {
+                switch ($listener) {
+                    case ($listener instanceof EventListenerInterface):
+                        $result[] = call_user_func_array([$listener, 'handle'], [$this, $this->getParams()]);
+                        break;
+                    case (is_callable($listener) || is_array($listener)):
+                    default:
+                        $result[] = call_user_func_array($listener, [$this, $this->getParams()]);
+                }
+            }
         }
         return $result;
     }

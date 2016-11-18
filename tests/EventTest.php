@@ -17,11 +17,12 @@ class EventTest extends PHPUnit_Framework_TestCase
 
     public function testEvent()
     {
-        $event = new DemoEvent('demo', function () {
+        $event = new \FastD\Event\Event('demo', function () {
             return 'demo event';
         });
-        $event->attach(new DemoListener());
-        $event->broadcast();
-        $this->expectOutputString('handle ok');
+
+        $result = $event->broadcast();
+
+        $this->assertEquals(['demo event'], $result);
     }
 }

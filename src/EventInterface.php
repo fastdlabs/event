@@ -29,7 +29,7 @@ interface EventInterface
      *
      * @return null|string|object
      */
-    public function getTarget();
+    public function getListeners();
 
     /**
      * Get parameters passed to the event
@@ -50,23 +50,23 @@ interface EventInterface
      * Set the event name
      *
      * @param  string $name
-     * @return void
+     * @return EventInterface
      */
     public function setName($name);
 
     /**
      * Set the event target
      *
-     * @param  null|string|object $target
-     * @return void
+     * @param  null|string|object $listener
+     * @return EventInterface
      */
-    public function setTarget($target);
+    public function setListener($listener);
 
     /**
      * Set event parameters
      *
      * @param  array $params
-     * @return void
+     * @return EventInterface
      */
     public function setParams(array $params);
 
@@ -85,8 +85,13 @@ interface EventInterface
     public function isPropagationStopped();
 
     /**
-     * @param array $arguments
      * @return mixed
      */
-    public function broadcast(array $arguments = []);
+    public function cleanListeners();
+
+    /**
+     * @param $index
+     * @return mixed
+     */
+    public function detachListener($index);
 }

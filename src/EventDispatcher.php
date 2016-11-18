@@ -25,29 +25,32 @@ class EventDispatcher extends EventManager
     {
         parent::attach($name, $callback);
 
-        $this->events[$name]->attach($callback);
-
         return $this;
     }
 
     /**
      * @param $name
+     * @param $callback
      * @return $this
      */
-    public function off($name)
+    public function off($name, $callback)
     {
-        parent::detach($name);
+        parent::detach($name, $callback);
 
         return $this;
     }
 
     /**
-     * @param $name
-     * @param array $arguments
+     * Trigger an event
+     *
+     * Can accept an EventInterface or will create one if not passed
+     *
+     * @param  string|EventInterface $event
+     * @param  array|object $argv
      * @return mixed
      */
-    public function dispatch($name, array $arguments = [])
+    public function dispatch($event, array $argv = [])
     {
-        return parent::trigger($name, null, $arguments);
+        return parent::trigger($event, $argv);
     }
 }

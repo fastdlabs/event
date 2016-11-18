@@ -9,6 +9,8 @@
 
 namespace FastD\Event;
 
+use FastD\Event\Exceptions\EventNotFoundException;
+
 /**
  * Class EventManager
  *
@@ -20,6 +22,20 @@ abstract class EventManager implements EventManagerInterface
      * @var EventInterface[]
      */
     protected $events = [];
+
+    /**
+     * @param $name
+     * @return EventInterface|EventBroadcastInterface
+     * @throws EventNotFoundException
+     */
+    public function getEvent($name)
+    {
+        if (!isset($this->events[$name])) {
+            throw new EventNotFoundException($name);
+        }
+
+        return $this->events[$name];
+    }
 
     /**
      * Attaches a listener to an event
@@ -45,20 +61,18 @@ abstract class EventManager implements EventManagerInterface
      */
     public function detach($event, $callback = null)
     {
-        if (isset($this->events[$event])) {
-            unset($this->events[$event]);
-        }
+        return $this->getEvent($event)->detachListener($callback);
     }
 
     /**
      * Clear all listeners for a given event
      *
      * @param  string $event
-     * @return void
+     * @return bool
      */
     public function clearListeners($event)
     {
-
+        return $this->getEvent($event)->cleanListeners();
     }
 
     /**
@@ -67,13 +81,18 @@ abstract class EventManager implements EventManagerInterface
      * Can accept an EventInterface or will create one if not passed
      *
      * @param  string|EventInterface $event
-     * @param  object|string $target
      * @param  array|object $argv
      * @return mixed
      */
-    public function trigger($event, $target = null, $argv = array())
+    public function trigger($event, array $argv = [])
     {
-        $result = $this->events[$event]->broadcast($argv);
+        $event =  $this->getEvent($event);
+
+        if (!empty($argv)) {
+            $event->setParams($argv);
+        }
+
+        $result = $event->broadcast();
 
         return array_pop($result);
     }
