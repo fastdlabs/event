@@ -1,5 +1,7 @@
 # Event
 
+[![Latest Stable Version](https://poser.pugx.org/fastd/event/v/stable)](https://packagist.org/packages/fastd/event)[![Latest Unstable Version](https://poser.pugx.org/fastd/event/v/unstable)](https://packagist.org/packages/fastd/event)[![License](https://poser.pugx.org/fastd/event/license)](https://packagist.org/packages/fastd/event)[![composer.lock](https://poser.pugx.org/fastd/event/composerlock)](https://packagist.org/packages/fastd/event)
+
 Simple Event and EventManager
 
 ### Requirements
