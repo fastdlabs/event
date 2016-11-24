@@ -19,7 +19,7 @@ class EventDispatcherTest extends PHPUnit_Framework_TestCase
     {
         $eventDispatch = new \FastD\Event\EventDispatcher();
 
-        $eventDispatch->on('demo', new DemoListener());
+        $eventDispatch->on('demo', [new DemoListener(), 'handle']);
 
         echo $eventDispatch->trigger('demo');
 

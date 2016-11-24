@@ -184,14 +184,7 @@ class Event implements EventInterface, EventBroadcastInterface
         $result = [];
         foreach ($this->listeners as $listener) {
             if (!$this->isPropagationStopped()) {
-                switch ($listener) {
-                    case ($listener instanceof EventListenerInterface):
-                        $result[] = call_user_func_array([$listener, 'handle'], [$this, $this->getParams()]);
-                        break;
-                    case (is_callable($listener) || is_array($listener)):
-                    default:
-                        $result[] = call_user_func_array($listener, [$this, $this->getParams()]);
-                }
+                $result[] = call_user_func_array($listener, $this->getParams());
             }
         }
         return $result;

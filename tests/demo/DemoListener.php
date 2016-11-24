@@ -7,9 +7,9 @@
  * @link      https://www.github.com/janhuang
  * @link      http://www.fast-d.cn/
  */
-class DemoListener extends \FastD\Event\EventListener
+class DemoListener
 {
-    public function handle(\FastD\Event\EventInterface $event, array $arguments = [])
+    public function handle()
     {
         echo 'handle ok';
     }
