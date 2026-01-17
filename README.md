@@ -179,9 +179,36 @@ class StopEventListener
 
 实现 `Psr\EventDispatcher\StoppableEventInterface` 接口，提供事件传播停止功能。
 
+### EventListenerInterface
+
+提供标准化的事件监听器实现接口，允许开发者创建更规范的监听器类：
+
+```php
+use FastD\Event\EventListenerInterface;
+
+class MyEventListener implements EventListenerInterface
+{
+    public function handle(object $event): void
+    {
+        if ($event instanceof MyEvent) {
+            // 处理事件逻辑
+            echo "Processing event: " . $event->getData();
+        }
+    }
+    
+    public function __invoke(object $event): void
+    {
+        $this->handle($event);
+    }
+}
+
+// 使用监听器
+$provider->addListener(MyEvent::class, new MyEventListener());
+```
+
 ### EventPriority
 
-提供预定义的事件优先级常量，方便管理监听器执行顺序。
+提供预定义的事件优先级常量，方便管理监听器执行顺序.
 
 ## 测试
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace FastD\Event;
 
-class EventListener
-{
+use Psr\EventDispatcher\StoppableEventInterface;
 
+interface EventListenerInterface
+{
+    public function __invoke(StoppableEventInterface $stoppableEvent): void;
 }

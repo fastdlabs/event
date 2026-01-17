@@ -3,6 +3,7 @@
 namespace Tests;
 
 use FastD\Event\ListenerProvider;
+use FastD\Event\EventListenerInterface;
 use Tests\_support\TestEvent;
 use Tests\_support\BaseEvent;
 use Tests\_support\ChildEvent;
@@ -14,8 +15,12 @@ class ListenerProviderTest extends TestCase
     {
         $provider = new ListenerProvider();
 
-        $listener = function ($event) {
-            // Do nothing
+        $listener = new class implements EventListenerInterface {
+            public function handle(object $event): void {}
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
         };
 
         $provider->addListener(TestEvent::class, $listener);
@@ -39,8 +44,12 @@ class ListenerProviderTest extends TestCase
     {
         $provider = new ListenerProvider();
 
-        $listener = function ($event) {
-            // Do nothing
+        $listener = new class implements EventListenerInterface {
+            public function handle(object $event): void {}
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
         };
 
         $provider->addListener(BaseEvent::class, $listener);
@@ -57,14 +66,54 @@ class ListenerProviderTest extends TestCase
         $provider = new ListenerProvider();
 
         $results = [];
-        $listenerLow = function ($event) use (&$results) {
-            $results[] = 'low';
+        $sharedResults = new class() {
+            public array $results = [];
         };
-        $listenerHigh = function ($event) use (&$results) {
-            $results[] = 'high';
+        
+        $listenerLow = new class($sharedResults) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->results[] = 'low';
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
         };
-        $listenerNormal = function ($event) use (&$results) {
-            $results[] = 'normal';
+        $listenerHigh = new class($sharedResults) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->results[] = 'high';
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
+        };
+        $listenerNormal = new class($sharedResults) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->results[] = 'normal';
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
         };
 
         // Add listeners with different priorities
@@ -81,7 +130,7 @@ class ListenerProviderTest extends TestCase
         }
 
         // High priority should execute first, then normal, then low
-        $this->assertEquals(['high', 'normal', 'low'], $results);
+        $this->assertEquals(['high', 'normal', 'low'], $sharedResults->results);
     }
 
     public function testExceptionThrownForNonExistentEventClass(): void
@@ -91,6 +140,14 @@ class ListenerProviderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Event class NonExistentClass does not exist or is not loaded');
 
-        $provider->addListener('NonExistentClass', function () {});
+        $listener = new class implements EventListenerInterface {
+            public function handle(object $event): void {}
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
+        };
+        
+        $provider->addListener('NonExistentClass', $listener);
     }
 }

@@ -4,6 +4,7 @@ namespace Tests;
 
 use FastD\Event\EventDispatcher;
 use FastD\Event\ListenerProvider;
+use FastD\Event\EventListenerInterface;
 use Tests\_support\TestEvent;
 use Tests\_support\StoppableTestEvent;
 use PHPUnit\Framework\TestCase;
@@ -27,9 +28,23 @@ class EventDispatcherTest extends TestCase
         $listenerProvider = new ListenerProvider();
         $dispatcher = new EventDispatcher($listenerProvider);
 
-        $called = false;
-        $listener = function ($event) use (&$called) {
-            $called = true;
+        $sharedState = new class() {
+            public bool $called = false;
+        };
+        $listener = new class($sharedState) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->called = true;
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
         };
 
         $listenerProvider->addListener(TestEvent::class, $listener);
@@ -37,7 +52,7 @@ class EventDispatcherTest extends TestCase
         $event = new TestEvent('test_data');
         $dispatcher->dispatch($event);
 
-        $this->assertTrue($called);
+        $this->assertTrue($sharedState->called);
     }
 
     public function testDispatchWithMultipleListeners(): void
@@ -45,12 +60,38 @@ class EventDispatcherTest extends TestCase
         $listenerProvider = new ListenerProvider();
         $dispatcher = new EventDispatcher($listenerProvider);
 
-        $callCount = 0;
-        $listener1 = function ($event) use (&$callCount) {
-            $callCount++;
+        $sharedCounter = new class() {
+            public int $callCount = 0;
         };
-        $listener2 = function ($event) use (&$callCount) {
-            $callCount++;
+        $listener1 = new class($sharedCounter) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->callCount++;
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
+        };
+        $listener2 = new class($sharedCounter) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->callCount++;
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
         };
 
         $listenerProvider->addListener(TestEvent::class, $listener1);
@@ -59,7 +100,7 @@ class EventDispatcherTest extends TestCase
         $event = new TestEvent('test_data');
         $dispatcher->dispatch($event);
 
-        $this->assertEquals(2, $callCount);
+        $this->assertEquals(2, $sharedCounter->callCount);
     }
 
     public function testDispatchWithStoppableEvent(): void
@@ -67,13 +108,41 @@ class EventDispatcherTest extends TestCase
         $listenerProvider = new ListenerProvider();
         $dispatcher = new EventDispatcher($listenerProvider);
 
-        $callCount = 0;
-        $listener1 = function ($event) use (&$callCount) {
-            $callCount++;
-            $event->stopPropagation();
+        $sharedCounter = new class() {
+            public int $callCount = 0;
         };
-        $listener2 = function ($event) use (&$callCount) {
-            $callCount++;
+        $listener1 = new class($sharedCounter) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->callCount++;
+                if (method_exists($event, 'stopPropagation')) {
+                    $event->stopPropagation();
+                }
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
+        };
+        $listener2 = new class($sharedCounter) implements EventListenerInterface {
+            private $shared;
+            
+            public function __construct($shared) {
+                $this->shared = $shared;
+            }
+            
+            public function handle(object $event): void {
+                $this->shared->callCount++;
+            }
+            
+            public function __invoke(object $event): void {
+                $this->handle($event);
+            }
         };
 
         $listenerProvider->addListener(StoppableTestEvent::class, $listener1);
@@ -82,6 +151,6 @@ class EventDispatcherTest extends TestCase
         $event = new StoppableTestEvent('test_data');
         $dispatcher->dispatch($event);
 
-        $this->assertEquals(1, $callCount);
+        $this->assertEquals(1, $sharedCounter->callCount);
     }
 }

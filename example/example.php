@@ -3,11 +3,14 @@ declare(strict_types=1);
 
 use FastD\Event\EventDispatcher;
 use FastD\Event\ListenerProvider;
+use FastD\Event\EventListenerInterface;
 use FastD\Event\EventPriority;
 
 require __DIR__ . '/../vendor/autoload.php';
 include __DIR__ . '/UserLoginLogListener.php';
+
 include __DIR__ . '/UserLoginSuccessEvent.php';
+include __DIR__ . '/UserLoginSecurityCheckListener.php';
 
 
 // 1. 初始化监听器提供者和事件调度器
@@ -25,6 +28,13 @@ $listenerProvider->addListener(
     UserLoginSuccessEvent::class,
     new UserLoginNoticeListener(), // 监听器 2：通知发送
     EventPriority::LOW // 设置默认优先级
+);
+
+// 示例：添加实现 EventListenerInterface 的监听器
+$listenerProvider->addListener(
+    UserLoginSuccessEvent::class,
+    new UserLoginSecurityCheckListener(), // 监听器 3：安全检查（实现 EventListenerInterface）
+    EventPriority::NORMAL // 设置普通优先级
 );
 
 // 示例：添加更高优先级的监听器

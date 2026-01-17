@@ -32,7 +32,6 @@ class UserLoginSuccessEvent extends StoppableEvent
      */
     public function __construct(int $userId, string $loginIp)
     {
-        parent::__construct(); // 调用父类构造函数
         $this->userId = $userId;
         $this->loginIp = $loginIp;
         $this->loginTime = date('Y-m-d H:i:s');

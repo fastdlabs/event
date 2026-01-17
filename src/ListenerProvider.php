@@ -14,7 +14,7 @@ class ListenerProvider implements ListenerProviderInterface
     // Cache for event class hierarchies to improve performance
     private array $eventHierarchyCache = [];
 
-    public function addListener(string $eventClass, callable $listener, int $priority = 0): void
+    public function addListener(string $eventClass, EventListenerInterface $listener, int $priority = 0): void
     {
         if (!class_exists($eventClass) && !interface_exists($eventClass)) {
             throw new \InvalidArgumentException("Event class {$eventClass} does not exist or is not loaded");

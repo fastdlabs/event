@@ -4,6 +4,7 @@ namespace Tests;
 
 use FastD\Event\EventDispatcher;
 use FastD\Event\ListenerProvider;
+use FastD\Event\EventListenerInterface;
 use FastD\Event\EventPriority;
 use Tests\_support\TestEvent;
 use Tests\_support\StoppableTestEvent;
@@ -18,29 +19,67 @@ class IntegrationTest extends TestCase
         $listenerProvider = new ListenerProvider();
         $eventDispatcher = new EventDispatcher($listenerProvider);
 
-        $executionOrder = [];
-
+        $sharedState = new class() {
+            public array $executionOrder = [];
+        };
+        
         // Register listeners with different priorities
         $listenerProvider->addListener(
             TestEvent::class,
-            function (TestEvent $event) use (&$executionOrder) {
-                $executionOrder[] = 'first';
+            new class($sharedState) implements EventListenerInterface {
+                private $shared;
+                
+                public function __construct($shared) {
+                    $this->shared = $shared;
+                }
+                
+                public function handle(object $event): void {
+                    $this->shared->executionOrder[] = 'first';
+                }
+                
+                public function __invoke(object $event): void {
+                    $this->handle($event);
+                }
             },
             EventPriority::HIGH
         );
 
         $listenerProvider->addListener(
             TestEvent::class,
-            function (TestEvent $event) use (&$executionOrder) {
-                $executionOrder[] = 'second';
+            new class($sharedState) implements EventListenerInterface {
+                private $shared;
+                
+                public function __construct($shared) {
+                    $this->shared = $shared;
+                }
+                
+                public function handle(object $event): void {
+                    $this->shared->executionOrder[] = 'second';
+                }
+                
+                public function __invoke(object $event): void {
+                    $this->handle($event);
+                }
             },
             EventPriority::NORMAL
         );
 
         $listenerProvider->addListener(
             TestEvent::class,
-            function (TestEvent $event) use (&$executionOrder) {
-                $executionOrder[] = 'third';
+            new class($sharedState) implements EventListenerInterface {
+                private $shared;
+                
+                public function __construct($shared) {
+                    $this->shared = $shared;
+                }
+                
+                public function handle(object $event): void {
+                    $this->shared->executionOrder[] = 'third';
+                }
+                
+                public function __invoke(object $event): void {
+                    $this->handle($event);
+                }
             },
             EventPriority::LOW
         );
@@ -49,7 +88,7 @@ class IntegrationTest extends TestCase
         $result = $eventDispatcher->dispatch($event);
 
         $this->assertSame($event, $result);
-        $this->assertEquals(['first', 'second', 'third'], $executionOrder);
+        $this->assertEquals(['first', 'second', 'third'], $sharedState->executionOrder);
     }
 
     public function testStoppableEventFlow(): void
@@ -57,27 +96,55 @@ class IntegrationTest extends TestCase
         $listenerProvider = new ListenerProvider();
         $eventDispatcher = new EventDispatcher($listenerProvider);
 
-        $executionCount = 0;
+        $counter = new class() {
+            public int $executionCount = 0;
+        };
 
         $listenerProvider->addListener(
             StoppableTestEvent::class,
-            function (StoppableTestEvent $event) use (&$executionCount) {
-                $executionCount++;
-                $event->stopPropagation();
+            new class($counter) implements EventListenerInterface {
+                private $shared;
+                
+                public function __construct($shared) {
+                    $this->shared = $shared;
+                }
+                
+                public function handle(object $event): void {
+                    $this->shared->executionCount++;
+                    if (method_exists($event, 'stopPropagation')) {
+                        $event->stopPropagation();
+                    }
+                }
+                
+                public function __invoke(object $event): void {
+                    $this->handle($event);
+                }
             }
         );
 
         $listenerProvider->addListener(
             StoppableTestEvent::class,
-            function (StoppableTestEvent $event) use (&$executionCount) {
-                $executionCount++; // This should not be executed
+            new class($counter) implements EventListenerInterface {
+                private $shared;
+                
+                public function __construct($shared) {
+                    $this->shared = $shared;
+                }
+                
+                public function handle(object $event): void {
+                    $this->shared->executionCount++; // This should not be executed
+                }
+                
+                public function __invoke(object $event): void {
+                    $this->handle($event);
+                }
             }
         );
 
         $event = new StoppableTestEvent('stoppable_test');
         $eventDispatcher->dispatch($event);
 
-        $this->assertEquals(1, $executionCount);
+        $this->assertEquals(1, $counter->executionCount);
         $this->assertTrue($event->isPropagationStopped());
     }
 
@@ -86,13 +153,27 @@ class IntegrationTest extends TestCase
         $listenerProvider = new ListenerProvider();
         $eventDispatcher = new EventDispatcher($listenerProvider);
 
-        $executionCount = 0;
+        $counter = new class() {
+            public int $executionCount = 0;
+        };
 
         // Register listener for base event class
         $listenerProvider->addListener(
             BaseEvent::class,
-            function (BaseEvent $event) use (&$executionCount) {
-                $executionCount++;
+            new class($counter) implements EventListenerInterface {
+                private $shared;
+                
+                public function __construct($shared) {
+                    $this->shared = $shared;
+                }
+                
+                public function handle(object $event): void {
+                    $this->shared->executionCount++;
+                }
+                
+                public function __invoke(object $event): void {
+                    $this->handle($event);
+                }
             }
         );
 
@@ -100,6 +181,6 @@ class IntegrationTest extends TestCase
         $event = new ChildEvent('inheritance_test');
         $eventDispatcher->dispatch($event);
 
-        $this->assertEquals(1, $executionCount);
+        $this->assertEquals(1, $counter->executionCount);
     }
 }

@@ -8,9 +8,9 @@ class StoppableTestEvent extends StoppableEvent
 {
     private string $data;
 
-    public function __construct(string $data)
+    public function __construct(string $data, bool $propagationStopped = false)
     {
-        parent::__construct(); // 调用父类构造函数
+        $this->propagationStopped = $propagationStopped; // 设置父类属性
         $this->data = $data;
     }
 
