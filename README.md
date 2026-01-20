@@ -14,6 +14,8 @@ FastD Event 是一个轻量级、高性能的 PSR-14 兼容事件调度器实现
 - 🔥 支持继承链和接口实现的事件监听
 - 🛑 支持可停止事件传播
 - 🧪 100% 测试覆盖率
+- 🛡️ 内置异常处理机制，单个监听器异常不会影响其他监听器执行
+- 🔄 支持协程调度，可处理异步事件监听
 
 ## 安装
 
@@ -138,9 +140,9 @@ $dispatcher->dispatch(new ChildEvent());
 使用 `StoppableEvent` 类可以让事件在特定条件下停止传播：
 
 ```php
-use FastD\Event\StoppableEvent;
+use FastD\Event\Event;
 
-class MyStoppableEvent extends StoppableEvent
+class MyStoppableEvent extends Event
 {
     public function __construct(private string $data)
     {
@@ -206,6 +208,41 @@ class MyEventListener implements EventListenerInterface
 $provider->addListener(MyEvent::class, new MyEventListener());
 ```
 
+### 异常处理
+
+当监听器抛出异常时，事件调度器会捕获异常并将其存储在支持异常处理的事件对象中（继承自StoppableEvent）：
+
+```php
+use FastD\Event\Event;
+
+class MyEvent extends Event
+{
+    public string $data;
+    
+    public function __construct(string $data)
+    {
+        parent::__construct();
+        $this->data = $data;
+    }
+}
+
+// 添加会抛出异常的监听器
+$provider->addListener(MyEvent::class, function($event) {
+    throw new \RuntimeException('Something went wrong');
+});
+
+$myEvent = new MyEvent('test');
+$result = $dispatcher->dispatch($myEvent);
+
+// 检查事件中是否有异常
+if (!empty($result->getExceptions())) {
+    $exceptions = $result->getExceptions();
+    foreach ($exceptions as $listenerClass => $exception) {
+        echo "Caught exception from " . $listenerClass . ": " . $exception->getMessage();
+    }
+}
+```
+
 ### EventPriority
 
 提供预定义的事件优先级常量，方便管理监听器执行顺序.
@@ -217,6 +254,33 @@ $provider->addListener(MyEvent::class, new MyEventListener());
 ```bash
 ./vendor/bin/phpunit
 ```
+
+## 协程调度器
+
+FastD Event 提供了协程调度器 `CoroutineEventDispatcher`，支持异步事件处理：
+
+```php
+use FastD\Event\CoroutineEventDispatcher;
+use FastD\Event\CoroutineSampleListener;
+
+// 创建协程调度器
+$coroutineDispatcher = new CoroutineEventDispatcher($provider);
+
+// 使用协程监听器
+$coroutineListener = new CoroutineSampleListener();
+$provider->addListener(MyEvent::class, $coroutineListener);
+
+// 同步运行协程调度
+$result = $coroutineDispatcher->runDispatch($event);
+
+// 或获取生成器手动控制
+$generator = $coroutineDispatcher->getGenerator($event);
+foreach ($generator as $value) {
+    // 处理生成的值
+}
+```
+
+协程调度器允许您在事件监听器中使用 `yield` 关键字实现异步操作，同时保持与PSR-14标准的兼容性（通过提供独立的协程调度器而非修改标准接口）。
 
 ## 许可证
 

@@ -7,30 +7,36 @@ namespace FastD\Event;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
+use Throwable;
 
 class EventDispatcher implements EventDispatcherInterface
 {
     public function __construct(
-        private ListenerProviderInterface $listenerProvider
+        private readonly ListenerProviderInterface $listenerProvider
     ) {}
-
-    public function getListenerProvider(): ListenerProviderInterface
-    {
-        return $this->listenerProvider;
-    }
 
     public function dispatch(object $event): object
     {
-        if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
+        if (
+            ($event instanceof StoppableEventInterface && $event->isPropagationStopped())
+            || ($event instanceof ThrowableEventInterface && $event->isExceptionStopped())
+        ) {
             return $event;
         }
 
         $listeners = $this->listenerProvider->getListenersForEvent($event);
 
         foreach ($listeners as $listener) {
-            $listener($event);
+            try {
+                $listener->process($event);
+            } catch (Throwable $throwable) {
+                (new ThrowableListener($listener, $throwable))->process($event);
+            }
 
-            if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
+            if (
+                ($event instanceof StoppableEventInterface && $event->isPropagationStopped())
+                || ($event instanceof ThrowableEventInterface && $event->isExceptionStopped())
+            ) {
                 break;
             }
         }

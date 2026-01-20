@@ -1,6 +1,6 @@
 <?php
 
-namespace FastD\Event\Contract;
+namespace FastD\Event;
 
 use Throwable;
 

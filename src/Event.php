@@ -7,7 +7,7 @@ namespace FastD\Event;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Throwable;
 
-class StoppableEvent implements StoppableEventInterface
+class Event implements StoppableEventInterface, ThrowableEventInterface
 {
     protected bool $propagationStopped = false;
 
@@ -35,12 +35,12 @@ class StoppableEvent implements StoppableEventInterface
         $this->exceptionStopped = true;
     }
 
-    public function addException(EventListenerInterface $listener, Throwable $exception): void
+    public function addThrowable(EventListenerInterface $eventListener, Throwable $throwable): void
     {
-        $this->exceptions[get_class($listener)] = $exception;
+        $this->exceptions[get_class($eventListener)] = $throwable;
     }
 
-    public function getExceptions(): array
+    public function getThrowables(): array
     {
         return $this->exceptions;
     }

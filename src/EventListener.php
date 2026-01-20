@@ -4,23 +4,12 @@ declare(strict_types=1);
 
 namespace FastD\Event;
 
-use FastD\Event\Contract\EventListenerInterface;
-
-abstract class EventLListener implements EventListenerInterface
+abstract class EventListener implements EventListenerInterface
 {
-
-    public function listen(): iterable
+    public function priority(): int
     {
-        // TODO: Implement listen() method.
+        return 0;
     }
 
-    public function process(object $event): void
-    {
-        // TODO: Implement process() method.
-    }
-
-    public function getPriority(): int
-    {
-        // TODO: Implement getPriority() method.
-    }
+    abstract public function process(object $event): void;
 }
