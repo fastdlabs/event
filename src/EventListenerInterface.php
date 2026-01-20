@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace FastD\Event;
-
-use Psr\EventDispatcher\StoppableEventInterface;
+namespace FastD\Event\Contract;
 
 interface EventListenerInterface
 {
-    public function __invoke(StoppableEventInterface $stoppableEvent): void;
+    public function listen(): iterable;
+
+    public function process(object $event): void;
+
+    public function priority(): int;
 }
