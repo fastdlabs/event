@@ -193,3 +193,104 @@ $prioritizedEvent = new UserRegisteredEvent('priority_user', 'priority@example.c
 $priorityDispatcher->dispatch($prioritizedEvent);
 
 echo "\n=== 示例结束 ===\n";
+
+// 5. 新增时间中断事件监听器示例
+
+echo "5. 时间中断事件监听器示例:\n";
+
+/**
+ * 时间中断事件类
+ */
+class TimeInterruptEvent extends Event
+{
+    public function __construct(private string $interruptTime, private string $reason)
+    {
+    }
+
+    public function getInterruptTime(): string
+    {
+        return $this->interruptTime;
+    }
+
+    public function getReason(): string
+    {
+        return $this->reason;
+    }
+}
+
+/**
+ * 时间中断事件监听器 - 处理中断事件
+ */
+class TimeInterruptHandlerListener extends EventListener
+{
+    public function listen(): iterable
+    {
+        return [TimeInterruptEvent::class];
+    }
+
+    public function process(object $event): void
+    {
+        if ($event instanceof TimeInterruptEvent) {
+            echo "[Time Interrupt Handler] 时间中断事件触发: {$event->getInterruptTime()}, 原因: {$event->getReason()}\n";
+            
+            // 模拟一些处理逻辑
+            sleep(1); // 模拟处理时间
+            echo "[Time Interrupt Handler] 时间中断事件处理完成\n";
+            $event->stopPropagation();
+        }
+    }
+
+    public function handle(object $event): void
+    {
+        $this->process($event);
+    }
+
+    public function priority(): int
+    {
+        return 8; // 较高优先级
+    }
+}
+
+/**
+ * 时间中断事件监听器 - 日志记录
+ */
+class TimeInterruptLoggerListener extends EventListener
+{
+    public function listen(): iterable
+    {
+        return [TimeInterruptEvent::class];
+    }
+
+    public function process(object $event): void
+    {
+        if ($event instanceof TimeInterruptEvent) {
+            echo "[Time Interrupt Logger] 记录时间中断事件: {$event->getInterruptTime()}, {$event->getReason()}\n";
+        }
+    }
+
+    public function handle(object $event): void
+    {
+        $this->process($event);
+    }
+
+    public function priority(): int
+    {
+        return 3; // 较低优先级
+    }
+}
+
+// 创建新的事件分发器用于时间中断示例
+$timeInterruptProvider = new ListenerProvider();
+$timeInterruptDispatcher = new EventDispatcher($timeInterruptProvider);
+
+// 添加时间中断相关的监听器
+$timeInterruptProvider->addListener(
+    new TimeInterruptHandlerListener(),
+    new TimeInterruptLoggerListener()
+);
+
+// 创建并触发时间中断事件
+$timeInterruptEvent = new TimeInterruptEvent('2026-01-22 10:30:00', '系统维护');
+$result = $timeInterruptDispatcher->dispatch($timeInterruptEvent);
+
+echo "\n时间中断事件示例执行完毕\n\n";

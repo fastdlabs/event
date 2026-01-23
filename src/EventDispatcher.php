@@ -12,7 +12,7 @@ use Throwable;
 class EventDispatcher implements EventDispatcherInterface
 {
     public function __construct(
-        private readonly ListenerProviderInterface $listenerProvider
+        public readonly ListenerProviderInterface $listenerProvider
     ) {}
 
     public function dispatch(object $event): object

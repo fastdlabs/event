@@ -15,12 +15,9 @@ class ListenerProvider implements ListenerProviderInterface
 
     public function addListener(EventListenerInterface ...$eventListeners): void
     {
-        if (empty($eventListeners)) {
-            return;
-        }
         foreach ($eventListeners as $eventListener) {
             $listenerClass = $eventListener::class;
-            if (! isset($this->listeners[$listenerClass])) {
+            if (!isset($this->listeners[$listenerClass])) {
                 $this->listeners[$listenerClass] = $eventListener;
                 foreach ($eventListener->listen() as $event) {
                     $this->events[$event][] = $eventListener;
@@ -31,9 +28,12 @@ class ListenerProvider implements ListenerProviderInterface
 
     public function getListenersForEvent(object $event): iterable
     {
-        $listeners = $this->events[$event::class] ?? [];
+        if (!isset($this->events[$event::class])) {
+            return [];
+        }
+
         $splPriorityQueue = new SplPriorityQueue();
-        foreach ($listeners as $listener) {
+        foreach ($this->events[$event::class] as $listener) {
             $splPriorityQueue->insert($listener, $listener->priority());
         }
 
