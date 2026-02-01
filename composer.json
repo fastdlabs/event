@@ -1,5 +1,6 @@
 {
     "name": "fastd/event",
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "FastD\\Event\\": "src/"
