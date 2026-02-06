@@ -25,7 +25,7 @@ class EventDispatcher implements EventDispatcherInterface
         }
 
         $listeners = $this->listenerProvider->getListenersForEvent($event);
-
+        
         foreach ($listeners as $listener) {
             try {
                 $listener->process($event);
@@ -42,5 +42,10 @@ class EventDispatcher implements EventDispatcherInterface
         }
 
         return $event;
+    }
+
+    public function addListener(EventListenerInterface ...$eventListener): void
+    {
+        $this->listenerProvider->addListener(...$eventListener);
     }
 }
