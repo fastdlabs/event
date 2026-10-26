@@ -32,3 +32,22 @@ Thumbs.db
 # Test artifacts
 .phpunit
 .phpunit.result.cache
+# --- OS generated ---
+
+# --- IDE / editor ---
+.fleet/
+.trae/
+.history/
+
+# --- PHP test / build artifacts ---
+.phpunit.cache/
+build/
+
+# --- local runtime ---
+runtime/
+*.pid
+
+# --- environment ---
+
+# --- agent workspace ---
+.qoder/
