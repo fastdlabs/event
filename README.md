@@ -1,5 +1,7 @@
 # FastD Event - PSR-14 Event Dispatcher Implementation
 
+[![CI](https://github.com/fastdlabs/event/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/fastdlabs/event/actions/workflows/ci.yml)
+
 FastD Event 是一个轻量级、高性能的 PSR-14 兼容事件调度器实现，提供简单易用的事件驱动架构解决方案。
 
 ## 环境要求
