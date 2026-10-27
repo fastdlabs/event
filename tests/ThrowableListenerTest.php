@@ -79,10 +79,22 @@ class ThrowableListenerTest extends TestCase
 
     public function testProcessDoesNotAddExceptionIfNotThrowableEvent(): void
     {
-        // Create a mock event that doesn't implement ThrowableEventInterface
-        $mockEvent = $this->getMockBuilder(\stdClass::class)
-            ->addMethods(['isExceptionStopped', 'addThrowable', 'getThrowables'])
-            ->getMock();
+        // 普通对象，不实现 ThrowableEventInterface
+        $mockEvent = new class {
+            public function isExceptionStopped(): bool
+            {
+                return false;
+            }
+
+            public function addThrowable(object $listener, \Throwable $throwable): void
+            {
+            }
+
+            public function getThrowables(): array
+            {
+                return [];
+            }
+        };
             
         $originalListener = new SimpleEventListener();
         $exception = new RuntimeException('Test exception');
