@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use FastD\Event\Event;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use Tests\SimpleEventListener;
 use RuntimeException;
@@ -58,6 +59,7 @@ class EventTest extends TestCase
         $this->assertSame($exception, $throwables[SimpleEventListener::class]);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testMultipleExceptions(): void
     {
         $event = new Event();

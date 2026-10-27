@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use FastD\Event\ListenerProvider;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 
 class ListenerProviderTest extends TestCase
@@ -65,6 +66,7 @@ class ListenerProviderTest extends TestCase
         }
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testListenersArePrioritized(): void
     {
         $provider = new ListenerProvider();
