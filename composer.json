@@ -1,5 +1,6 @@
 {
     "name": "fastd/event",
+    "description": "PSR-14 event dispatcher with priorities, inheritance and coroutine support.",
     "autoload": {
         "psr-4": {
             "FastD\\Event\\": "src/"
